@@ -11,6 +11,7 @@ import java.util.Scanner;
  * - prompt the user to pick the language they want it translated to from a list<br/>
  * - output the translation<br/>
  * - at any time, the user can type quit to quit the program<br/>
+ * ginky ponders
  */
 public class Main {
 
