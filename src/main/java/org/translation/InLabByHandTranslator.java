@@ -16,6 +16,7 @@ public class InLabByHandTranslator implements Translator {
      *
      * @param country the country
      * @return list of language abbreviations which are available for this country
+     * testing
      */
     public static final String CANADA = "can";
 
