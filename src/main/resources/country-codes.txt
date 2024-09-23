@@ -4,7 +4,7 @@ Albania	AL	ALB	008
 Algeria	DZ	DZA	012
 American Samoa	AS	ASM	016
 Andorra	AD	AND	020
-Angola	AO	AGO	024
+Angola	AO	AGO
 Anguilla	AI	AIA	660
 Antarctica	AQ	ATA	010
 Antigua and Barbuda	AG	ATG	028
