@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -13,8 +14,8 @@ import java.util.Map;
  */
 public class LanguageCodeConverter {
 
-    private Map<String, String> codeToLanguage;
-    private Map<String, String> languageToCode;
+    private Map<String, String> codeToLanguage = new HashMap<>();
+    private Map<String, String> languageToCode = new HashMap<>();
 
     /**
      * Default constructor which will load the language codes from "language-codes.txt"
@@ -30,20 +31,19 @@ public class LanguageCodeConverter {
      * @throws RuntimeException if the resource file can't be loaded properly
      */
     public LanguageCodeConverter(String filename) {
-        codeToLanguage = new HashMap<>();
-        languageToCode = new HashMap<>();
         try {
             List<String> lines = Files.readAllLines(Paths.get(getClass()
                     .getClassLoader().getResource(filename).toURI()));
 
-            // TODO Task: use lines to populate the instance variable
-            //           tip: you might find it convenient to create an iterator using lines.iterator()
-            for (String line : lines) {
-                String[] parts = line.split("   ");
-                String language = parts[0];
-                String code = parts[1];
-                codeToLanguage.put(language, code);
-                languageToCode.put(code, language);
+            Iterator it = lines.iterator();
+
+            it.next();
+
+            while (it.hasNext()) {
+                String line = it.next().toString();
+                String[] splitLine = line.split("\t");
+                codeToLanguage.put(splitLine[1], splitLine[0]);
+                languageToCode.put(splitLine[0], splitLine[1]);
             }
 
         }
@@ -59,7 +59,7 @@ public class LanguageCodeConverter {
      * @return the name of the language corresponding to the code
      */
     public String fromLanguageCode(String code) {
-        return codeToLanguage.getOrDefault(code, null);
+        return codeToLanguage.get(code.toLowerCase());
     }
 
     /**
@@ -68,7 +68,7 @@ public class LanguageCodeConverter {
      * @return the 2-letter code of the language
      */
     public String fromLanguage(String language) {
-        return languageToCode.getOrDefault(language, null);
+        return languageToCode.get(language);
     }
 
     /**

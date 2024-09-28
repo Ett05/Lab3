@@ -4,17 +4,15 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class provides the service of converting country codes to their names.
  */
 public class CountryCodeConverter {
 
-    private Map<String, String> codeToCountry;
-    private Map<String, String> countryToCode;
+    private Map<String, String> codeToCountry = new HashMap<>();
+    private Map<String, String> countryToCode = new HashMap<>();
 
     /**
      * Default constructor which will load the country codes from "country-codes.txt"
@@ -31,20 +29,20 @@ public class CountryCodeConverter {
      */
     public CountryCodeConverter(String filename) {
 
-        codeToCountry = new HashMap<>();
-        countryToCode = new HashMap<>();
         try {
             List<String> lines = Files.readAllLines(Paths.get(getClass()
                     .getClassLoader().getResource(filename).toURI()));
 
-            for (String line : lines) {
-                String[] parts = line.split("   ");
-                String country = parts[0];
-                String code = parts[2];
-                codeToCountry.put(code, country);
-                countryToCode.put(country, code);
-            }
+            Iterator it = lines.iterator();
 
+            it.next();
+
+            while (it.hasNext()) {
+                String line = it.next().toString();
+                String[] splitLine = line.split("\t");
+                codeToCountry.put(splitLine[2], splitLine[0]);
+                countryToCode.put(splitLine[0], splitLine[2]);
+            }
         }
         catch (IOException | URISyntaxException ex) {
             throw new RuntimeException(ex);
@@ -58,7 +56,7 @@ public class CountryCodeConverter {
      * @return the name of the country corresponding to the code
      */
     public String fromCountryCode(String code) {
-        return codeToCountry.getOrDefault(code, null);
+        return codeToCountry.get(code.toUpperCase());
     }
 
     /**
@@ -67,7 +65,7 @@ public class CountryCodeConverter {
      * @return the 3-letter code of the country
      */
     public String fromCountry(String country) {
-        return countryToCode.getOrDefault(country, null);
+        return countryToCode.get(country);
     }
 
     /**
