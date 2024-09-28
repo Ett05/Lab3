@@ -1,5 +1,7 @@
 package org.translation;
 
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -50,7 +52,16 @@ public class Main {
             // TODO Task: Once you switch promptForCountry so that it returns the country
             //            name rather than the 3-letter country code, you will need to
             //            convert it back to its 3-letter country code when calling promptForLanguage
-            String language = promptForLanguage(translator, country);
+
+            String countryCode = null;
+
+            for (String code : translator.getCountries()) {
+                if (translator.translate(code, "en").equals(country)) {
+                    countryCode = code;
+                    break;
+                }
+            }
+            String language = promptForLanguage(translator, countryCode);
             if (quit.equals(language)) {
                 break;
             }
@@ -79,6 +90,15 @@ public class Main {
         // TODO Task: convert the country codes to the actual country names before sorting
         System.out.println(countries);
 
+        for (int i = 0; i < countries.size(); i++) {
+            countries.set(i, translator.translate(countries.get(i), "en"));
+        }
+
+        Collections.sort(countries);
+        for (int i = 0; i < countries.size(); i++) {
+            System.out.println(countries.get(i));
+        }
+
         System.out.println("select a country from above:");
 
         Scanner s = new Scanner(System.in);
@@ -91,8 +111,16 @@ public class Main {
 
         // TODO Task: replace the line below so that we sort the languages alphabetically and print them out; one per line
         // TODO Task: convert the language codes to the actual language names before sorting
-        System.out.println(translator.getCountryLanguages(country));
+        List<String> languages = translator.getCountryLanguages(country);
+        System.out.println(languages);
 
+        for (int i = 0; i < languages.size(); ++i) {
+            languages.set(i, translator.translate((String) languages.get(i), "en"));
+        }
+        Collections.sort(languages);
+        for (String language : languages) {
+            System.out.println(language);
+        }
         System.out.println("select a language from above:");
 
         Scanner s = new Scanner(System.in);
