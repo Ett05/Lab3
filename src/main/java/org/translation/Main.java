@@ -57,8 +57,10 @@ public class Main {
                 break;
             }
             LanguageCodeConverter languageConverter = new LanguageCodeConverter();
-            System.out.println(language + "This is language");
-            System.out.println(country + " in " + language + " is " + translator.translate(country, languageConverter.fromLanguage(language)));
+            CountryCodeConverter countryConverter = new CountryCodeConverter();
+            countryCode = countryConverter.fromCountry(country).toLowerCase();
+            String languageCode = languageConverter.fromLanguage(language);
+            System.out.println(country + " in " + language + " is " + translator.translate(countryCode, languageCode));
             System.out.println("Press enter to continue or quit to exit.");
             Scanner s = new Scanner(System.in);
             String textTyped = s.nextLine();
