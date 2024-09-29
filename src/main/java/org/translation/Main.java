@@ -1,5 +1,6 @@
 package org.translation;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
@@ -12,9 +13,12 @@ import java.util.Scanner;
  * - prompt the user to pick the language they want it translated to from a list<br/>
  * - output the translation<br/>
  * - at any time, the user can type quit to quit the program<br/>
- * ginky ponders
  */
 public class Main {
+
+    private static CountryCodeConverter countryConverter = new CountryCodeConverter();
+    private static LanguageCodeConverter languageConverter = new LanguageCodeConverter();
+
     /**
      * This is the main entry point of our Translation System!<br/>
      * A class implementing the Translator interface is created and passed into a call to runProgram.
@@ -22,8 +26,7 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        Translator translator = new JSONTranslator("sample.json");
-
+        Translator translator = new JSONTranslator();
         runProgram(translator);
     }
 
@@ -34,28 +37,20 @@ public class Main {
      * @param translator the Translator implementation to use in the program
      */
     public static void runProgram(Translator translator) {
-        String quit = "quit";
         while (true) {
+            String quit = "quit";
+
             String country = promptForCountry(translator);
+            String countryCode = countryConverter.fromCountry(country).toLowerCase();
             if (quit.equals(country)) {
                 break;
             }
-            String countryCode = null;
 
-            for (String code : translator.getCountries()) {
-                if (translator.translate(code, "en").equals(country)) {
-                    countryCode = code;
-                    break;
-                }
-            }
             String language = promptForLanguage(translator, countryCode);
+            String languageCode = languageConverter.fromLanguage(language);
             if (quit.equals(language)) {
                 break;
             }
-            LanguageCodeConverter languageConverter = new LanguageCodeConverter();
-            CountryCodeConverter countryConverter = new CountryCodeConverter();
-            countryCode = countryConverter.fromCountry(country).toLowerCase();
-            String languageCode = languageConverter.fromLanguage(language);
             System.out.println(country + " in " + language + " is " + translator.translate(countryCode, languageCode));
             System.out.println("Press enter to continue or quit to exit.");
             Scanner s = new Scanner(System.in);
@@ -69,14 +64,14 @@ public class Main {
 
     // Note: CheckStyle is configured so that we don't need javadoc for private methods
     private static String promptForCountry(Translator translator) {
-        List<String> countries = translator.getCountries();
-        for (int i = 0; i < countries.size(); i++) {
-            countries.set(i, translator.translate(countries.get(i), "en"));
+        List<String> countries = new ArrayList<>();
+        for (String code : translator.getCountries()) {
+            countries.add(countryConverter.fromCountryCode(code));
         }
 
         Collections.sort(countries);
-        for (int i = 0; i < countries.size(); i++) {
-            System.out.println(countries.get(i));
+        for (String country : countries) {
+            System.out.println(country);
         }
 
         System.out.println("select a country from above:");
@@ -88,13 +83,14 @@ public class Main {
 
     // Note: CheckStyle is configured so that we don't need javadoc for private methods
     private static String promptForLanguage(Translator translator, String country) {
-        List<String> languages = translator.getCountryLanguages(country);
-        LanguageCodeConverter languageConverter = new LanguageCodeConverter();
+        List<String> languages = new ArrayList<>();
 
-        for (int i = 0; i < languages.size(); ++i) {
-            languages.set(i, languageConverter.fromLanguageCode(languages.get(i)));
+        for (String code : translator.getCountryLanguages(country)) {
+            languages.add(languageConverter.fromLanguageCode(code));
         }
+
         Collections.sort(languages);
+
         for (String language : languages) {
             System.out.println(language);
         }

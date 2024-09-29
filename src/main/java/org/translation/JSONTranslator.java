@@ -5,12 +5,10 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * An implementation of the Translator interface which reads in the translation
@@ -18,9 +16,8 @@ import org.json.JSONObject;
  */
 public class JSONTranslator implements Translator {
 
-    public static final String CODE = "alpha3";
-    private List<String> countries = new ArrayList<>();
-    private Map<String, Map<String, String>> countryTranslations = new HashMap<>();
+    private final JSONArray jsonArray;
+    private final String alphaCode = "alpha3";
 
     /**
      * Constructs a JSONTranslator using data from the sample.json resources file.
@@ -39,23 +36,7 @@ public class JSONTranslator implements Translator {
         try {
 
             String jsonString = Files.readString(Paths.get(getClass().getClassLoader().getResource(filename).toURI()));
-
-            JSONArray jsonArray = new JSONArray(jsonString);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String country = jsonObject.getString(CODE);
-                countries.add(country);
-                Map<String, String> languages = new HashMap<>();
-
-                for (String key : jsonObject.keySet()) {
-                    if (!"id".equals(key) && !"alpha2".equals(key) && !CODE.equals(key)) {
-                        languages.put(key, jsonObject.getString(key));
-                    }
-                }
-                countryTranslations.put(country, languages);
-            }
-
+            this.jsonArray = new JSONArray(jsonString);
         }
         catch (IOException | URISyntaxException ex) {
             throw new RuntimeException(ex);
@@ -64,18 +45,36 @@ public class JSONTranslator implements Translator {
 
     @Override
     public List<String> getCountryLanguages(String country) {
-        Map<String, String> translations = countryTranslations.get(country);
-        return new ArrayList<String>(translations.keySet());
+        List<String> languages = new ArrayList<>();
+        for (int i = 0; i < this.jsonArray.length(); i++) {
+            if (country.equals(this.jsonArray.getJSONObject(i).get(this.alphaCode))) {
+                for (Map.Entry<String, Object> j : this.jsonArray.getJSONObject(i).toMap().entrySet()) {
+                    String key = j.getKey();
+                    if (!("id".equals(key)) && !("alpha2".equals(key)) && !(this.alphaCode).equals(key)) {
+                        languages.add(key);
+                    }
+                }
+            }
+        }
+        return languages;
     }
 
     @Override
     public List<String> getCountries() {
-        return new ArrayList<>(countries);
+        List<String> countryList = new ArrayList<>();
+        for (int i = 0; i < this.jsonArray.length(); i++) {
+            countryList.add((String) this.jsonArray.getJSONObject(i).get(this.alphaCode));
+        }
+        return countryList;
     }
 
     @Override
     public String translate(String country, String language) {
-        Map<String, String> translations = countryTranslations.get(country);
-        return translations.get(language);
+        for (int i = 0; i < this.jsonArray.length(); i++) {
+            if (country.toLowerCase().equals(this.jsonArray.getJSONObject(i).get(this.alphaCode))) {
+                return (String) this.jsonArray.getJSONObject(i).get(language);
+            }
+        }
+        return null;
     }
 }
